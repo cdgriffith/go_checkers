@@ -9,41 +9,19 @@ import (
 	"math"
 	"regexp"
 )
-var playerChoice string
 // Cant jump onto 0s
 // 3s represent blank spaces you can jump too
 var board [8][8] int
 var playing bool
 
 
-func start() {
-
-	fmt.Println("Lets play checkers!")
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("X or O? ")
-	text, _ := reader.ReadString('\n')
-
-	if strings.Contains(strings.ToLower(text), "x") {
-		playerChoice = "X"
-	} else {
-		playerChoice = "O"
-	}
-
-	fmt.Println("You are playing as", playerChoice)
-
-}
-
 func converter(a int) string {
 	if a == 0 {
 		return "="
 	} else if a == 1 {
-		return playerChoice
+		return "X"
 	} else if a == 2 {
-		if playerChoice == "X" {
-			return "O"
-		} else {
-			return "X"
-		}
+		return "O"
 	} else if a == 3 {
 		return " "
 	} else {
@@ -63,7 +41,7 @@ func posToBoard(a string) ([2]int, bool) {
 		"g": 6,
 		"h": 7,
 	}
-	lat := map[string]int{
+	vert := map[string]int{
 		"8": 0,
 		"7": 1,
 		"6": 2,
@@ -74,15 +52,15 @@ func posToBoard(a string) ([2]int, bool) {
 		"1": 7,
 	}
 	h, hok := hoz[strings.ToLower(string(cvt[0]))]
-	l, lok := lat[strings.ToLower(string(cvt[1]))]
+	v, vok := vert[strings.ToLower(string(cvt[1]))]
 	//fmt.Printf("%s translated to %d%d\n",a, l, h)
 
 	err := false
-	if ! hok || ! lok {
+	if ! hok || ! vok {
 		err = true
 	}
 
-	return [2]int{l,h}, err
+	return [2]int{v,h}, err
 
 }
 
@@ -160,21 +138,19 @@ func validMove(player int, mov1 [2]int, mov2 [2]int) bool {
 	return false
 }
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
 
-func playerTurn(){
+func playerTurn(player int){
 	printBoard()
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Println("Your move (ex: a3 b4): ")
+
+	rep := "X"
+	if player == 2{
+		rep = "O"
+	}
+
+	fmt.Printf("Player %d (%s) move (ex: a3 b4): \n", player, rep)
 	text, _ := reader.ReadString('\n')
-	if stringInSlice(strings.ToLower(text), []string{"quit", "exit", "stop"}){
+	if strings.HasPrefix(strings.ToLower(text), "quit"){
 		playing = false
 		fmt.Println("Quitting...")
 		return
@@ -184,7 +160,7 @@ func playerTurn(){
 	match, _ := regexp.MatchString("[a-h][1-8] [a-h][1-8]", text)
 	if ! match{
 		fmt.Printf("Bad input, expected [a-h][1-8] [a-h][1-8], got %s\n", text)
-		playerTurn()
+		playerTurn(player)
 		return
 	}
 
@@ -194,29 +170,25 @@ func playerTurn(){
 	mov2, err2 := posToBoard(pos[1])
 	if err1 || err2 {
 		fmt.Println("Invalid move, buddy")
-		playerTurn()
+		playerTurn(player)
 		return
 	}
 
-	if validMove(1, mov1, mov2){
+	if validMove(player, mov1, mov2){
 		board[mov1[0]][mov1[1]] = 3
-		board[mov2[0]][mov2[1]] = 1
-		if mov2[0] - mov1[0] == -2  { // Capture
+		board[mov2[0]][mov2[1]] = player
+		if mov2[0] - mov1[0] == move(player, "vertCap")  { // Capture
 			l := (mov1[0] + mov2[0]) / 2
 			h := (mov1[1] + mov2[1]) / 2
-			fmt.Println(board[l][h])
 			board[l][h] = 3
+			fmt.Println("Captured!")
 		}
 
 	} else {
 		fmt.Println("INVALUD MOVE!")
-		playerTurn()
+		playerTurn(player)
 	}
 
-
-}
-
-func compTurn(){
 
 }
 
@@ -232,18 +204,13 @@ func main() {
 		{0,1,0,1,0,1,0,1},
 		{1,0,1,0,1,0,1,0}}
 
-	start()
-	if playerChoice == "O" {
-		compTurn()
-	}
-
 	playing = true
 	for playing {
-		playerTurn()
+		playerTurn(1)
 		if ! playing {
 			break
 		}
-		compTurn()
+		playerTurn(2)
 	}
 
 	fmt.Println("It's been fun!")
