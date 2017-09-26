@@ -24,10 +24,16 @@ func converter(a int) string {
 		return "O"
 	} else if a == 3 {
 		return " "
+	} else if a == 7 {
+		return "%"
+	} else if a == 8 {
+		return "0"
 	} else {
 		return "G"
 	}
 }
+
+
 
 func posToBoard(a string) ([2]int, bool) {
 	cvt := []rune(a)
@@ -100,7 +106,11 @@ func move(player int, move string) int{
 	}
 }
 
-func validMove(player int, mov1 [2]int, mov2 [2]int) bool {
+func validMove(player int, mov1 [2]int, mov2 [2]int, capOnly bool) bool {
+
+	if ! onBoard(mov1[0], mov1[1]) || ! onBoard(mov2[0], mov2[1]){
+		return false
+	}
 
 	enemy := 2
 	if player == 2 {
@@ -108,7 +118,7 @@ func validMove(player int, mov1 [2]int, mov2 [2]int) bool {
 	}
 
 
-	if board[mov1[0]][mov1[1]] != player {
+	if board[mov1[0]][mov1[1]] != player && board[mov1[0]][mov1[1]] != player + 6 {
 		fmt.Println("Starting posistion invalid", board[mov1[0]][mov1[1]])
 		return false
 	}
@@ -119,7 +129,7 @@ func validMove(player int, mov1 [2]int, mov2 [2]int) bool {
 
 	hoz := mov1[1] - mov2[1]
 
-	if mov2[0] - mov1[0] == move(player, "vert") && math.Abs(float64(hoz)) == 1 {
+	if mov2[0] - mov1[0] == move(player, "vert") && math.Abs(float64(hoz)) == 1 && ! capOnly{
 		return true
 	}
 
@@ -135,11 +145,66 @@ func validMove(player int, mov1 [2]int, mov2 [2]int) bool {
 		}
 	}
 
+	vert :=  move(player, "vert")
+	vertCap := move(player, "vertCap")
+
+	if captureChecks(mov1, mov2,vert, vertCap , capOnly, enemy) {
+		return true
+	} else if board[mov1[0]][mov1[1]] == player + 6 && captureChecks(mov1, mov2, -vert,  -vertCap, capOnly, enemy){
+		return true
+	}
+
+	return false
+}
+
+func captureChecks(mov1 [2]int, mov2 [2]int, vert int, vertCap int, capOnly bool, enemy int) bool{
+	hoz := mov1[1] - mov2[1]
+
+	if mov2[0] - mov1[0] == vert && math.Abs(float64(hoz)) == 1 && ! capOnly{
+		return true
+	}
+
+	if mov2[0] - mov1[0] == vertCap {
+		if hoz == -2 && onBoard(mov1[0] + vert, mov1[1] + 1){
+			if board[mov1[0] + vert ][mov1[1] + 1] == enemy {
+				return true
+			}
+		} else if hoz == 2  && onBoard(mov1[0] + vert, mov1[1] - 1) {
+			if board[mov1[0] + vert ][mov1[1] - 1] == enemy {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func onBoard(vert int, hoz int) bool{
+	if vert > 7 || vert < 0 || hoz > 7 || hoz < 0 {
+		return false
+	}
+	return true
+}
+
+
+
+func enemyLeft(player int) bool{
+	enemy := 2
+	if player == 2 {
+		enemy = 1
+	}
+
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			if board[i][j] == enemy || board[i][j] == enemy + 6{
+				return true
+			}
+		}
+	}
 	return false
 }
 
 
-func playerTurn(player int){
+func playerTurn(player int, capOnly bool, lastPos [2]int){
 	printBoard()
 	reader := bufio.NewReader(os.Stdin)
 
@@ -154,13 +219,22 @@ func playerTurn(player int){
 		playing = false
 		fmt.Println("Quitting...")
 		return
+	} else if strings.HasPrefix(strings.ToLower(text), "skip"){
+		if capOnly{
+			fmt.Println("Womp womp, you have to take the capture")
+			playerTurn(player, capOnly, lastPos)
+			return
+		}
+		fmt.Println("Skipping turn")
+		return
 	}
+
 	text = string([]rune(text)[0:5])
 
 	match, _ := regexp.MatchString("[a-h][1-8] [a-h][1-8]", text)
 	if ! match{
 		fmt.Printf("Bad input, expected [a-h][1-8] [a-h][1-8], got %s\n", text)
-		playerTurn(player)
+		playerTurn(player, capOnly, lastPos)
 		return
 	}
 
@@ -168,25 +242,59 @@ func playerTurn(player int){
 	pos := strings.Split(text, " ")
 	mov1, err1 := posToBoard(pos[0])
 	mov2, err2 := posToBoard(pos[1])
-	if err1 || err2 {
-		fmt.Println("Invalid move, buddy")
-		playerTurn(player)
+	if capOnly && mov1 != lastPos {
+		fmt.Println("You have to move the same piece you just used last, numskull")
+		playerTurn(player, capOnly, lastPos)
 		return
 	}
 
-	if validMove(player, mov1, mov2){
+	if err1 || err2 {
+		fmt.Println("Invalid move, buddy")
+		playerTurn(player, capOnly, lastPos)
+		return
+	}
+
+	if validMove(player, mov1, mov2, capOnly){
+		king := false
+		if board[mov1[0]][mov1[1]] == player + 6 {
+			king = true
+		} else if (player == 1 && mov2[0] == 0) || (player == 2 && mov2[0] == 7){
+			king = true
+			fmt.Println("King me!")
+		}
 		board[mov1[0]][mov1[1]] = 3
-		board[mov2[0]][mov2[1]] = player
-		if mov2[0] - mov1[0] == move(player, "vertCap")  { // Capture
+		if king{
+			board[mov2[0]][mov2[1]] = player + 6
+		} else {
+			board[mov2[0]][mov2[1]] = player
+		}
+
+
+		if math.Abs(float64(mov2[0] - mov1[0])) == 2 { // Capture
 			l := (mov1[0] + mov2[0]) / 2
 			h := (mov1[1] + mov2[1]) / 2
 			board[l][h] = 3
+			if ! enemyLeft(player){
+				playing = false
+				printBoard()
+				fmt.Printf("\nCongraulations Player %d, you've won!\n", player)
+				return
+			}
 			fmt.Println("Captured!")
+			if validMove(player, mov2, [2]int{mov2[0] + move(player, "vertCap"), mov2[1] + 2}, true) ||
+				validMove(player, mov2, [2]int{mov2[0] + move(player, "vertCap"), mov2[1] - 2}, true){
+					fmt.Println("Anoter capture possible, please go again")
+					playerTurn(player, true, mov2)
+			} else if king && (validMove(player, mov2, [2]int{mov2[0] - move(player, "vertCap"), mov2[1] + 2}, true) ||
+				validMove(player, mov2, [2]int{mov2[0] - move(player, "vertCap"), mov2[1] - 2}, true)){
+				fmt.Println("Anoter capture possible, please go again")
+				playerTurn(player, true, mov2)
+			}
 		}
 
 	} else {
 		fmt.Println("INVALUD MOVE!")
-		playerTurn(player)
+		playerTurn(player, capOnly, lastPos)
 	}
 
 
@@ -204,15 +312,18 @@ func main() {
 		{0,1,0,1,0,1,0,1},
 		{1,0,1,0,1,0,1,0}}
 
+	fmt.Println("Welcome to GO Checkers! ")
+	fmt.Println("You play by specifiying which peice to move, and the posistion to move it too")
+	fmt.Println("You can string captures, the game will let you know if you must take the next capture")
+	fmt.Println("\n You can also 'skip' or 'quit'")
+	fmt.Println("Have fun!")
 	playing = true
 	for playing {
-		playerTurn(1)
+		playerTurn(1, false, [2]int{0, 0})
 		if ! playing {
 			break
 		}
-		playerTurn(2)
+		playerTurn(2, false, [2]int{0, 0})
 	}
-
-	fmt.Println("It's been fun!")
 
 }
