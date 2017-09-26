@@ -4,7 +4,13 @@ A simple console based checkers game written in golang.
 
 
 ```
-You are playing as X
+Welcome to GO Checkers!
+
+You play by specifiying which peice to move, and the posistion to move it too
+You can string captures, the game will let you know if you must take the next capture
+You can also 'skip' or 'quit'
+
+Have fun!
 
 8 | = | O | = | O | = | O | = | O |
 7 | O | = | O | = | O | = | O | = |
@@ -15,6 +21,9 @@ You are playing as X
 2 | = | X | = | X | = | X | = | X |
 1 | X | = | X | = | X | = | X | = |
     A   B   C   D   E   F   G   H 
+    
+Player 1 (X) move (ex: a3 b4): 
+
 
 ```
 
