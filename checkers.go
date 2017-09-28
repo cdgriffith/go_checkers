@@ -159,7 +159,11 @@ func PlayerTurn(player int, capOnly bool, lastPos [2]int) {
 	fmt.Println()
 	if strings.HasPrefix(strings.ToLower(text), "quit") {
 		playing = false
-		fmt.Println("Quitting...")
+		enemy := 2
+		if player == 2 {
+			enemy = 1
+		}
+		fmt.Printf("Player %d has quit, Player %d wins!\n", player, enemy)
 		return
 	}
 
@@ -239,7 +243,7 @@ func main() {
 	fmt.Println("Welcome to GO Checkers!\n")
 	fmt.Println("You play by specifiying which peice to move, and the posistion to move it too")
 	fmt.Println("You can string captures, the game will let you know if you must take the next capture")
-	fmt.Println("You can also 'skip' or 'quit'")
+	fmt.Println("You can also 'quit' at anytime")
 	fmt.Println("\nHave fun!\n")
 	PopulateNewBoard()
 	playing = true
