@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"bufio"
-	"os"
-	"strings"
+	"fmt"
 	"math"
+	"os"
 	"regexp"
+	"strings"
 )
 
 var playing bool
@@ -27,7 +27,7 @@ func GetPossiblePos(player int) (int, int) {
 
 func ValidMove(player int, mov1 [2]int, mov2 [2]int, capOnly bool, noLog bool) bool {
 
-	if ! OnBoard(mov1[0], mov1[1]) || ! OnBoard(mov2[0], mov2[1]) {
+	if !OnBoard(mov1[0], mov1[1]) || !OnBoard(mov2[0], mov2[1]) {
 		return false
 	}
 
@@ -37,13 +37,13 @@ func ValidMove(player int, mov1 [2]int, mov2 [2]int, capOnly bool, noLog bool) b
 	}
 
 	if board[mov1[0]][mov1[1]] != player && board[mov1[0]][mov1[1]] != player+6 {
-		if ! noLog {
+		if !noLog {
 			fmt.Println("Starting posistion invalid", board[mov1[0]][mov1[1]])
 		}
 		return false
 	}
 	if board[mov2[0]][mov2[1]] != 3 {
-		if ! noLog {
+		if !noLog {
 			fmt.Println("Moving posistion invalid", board[mov2[0]][mov2[1]])
 		}
 		return false
@@ -66,17 +66,17 @@ func CaptureChecks(player int, mov1 [2]int, mov2 [2]int, capOnly bool, enemy int
 		vertCap = -vertCap
 	}
 
-	if mov2[0]-mov1[0] == vert && math.Abs(float64(hoz)) == 1 && ! capOnly {
+	if mov2[0]-mov1[0] == vert && math.Abs(float64(hoz)) == 1 && !capOnly {
 		return true
 	}
 
 	if mov2[0]-mov1[0] == vertCap {
 		if hoz == -2 && OnBoard(mov1[0]+vert, mov1[1]+1) {
-			if board[mov1[0]+vert ][mov1[1]+1] == enemy || board[mov1[0]+vert ][mov1[1]+1] == enemy+6 {
+			if board[mov1[0]+vert][mov1[1]+1] == enemy || board[mov1[0]+vert][mov1[1]+1] == enemy+6 {
 				return true
 			}
 		} else if hoz == 2 && OnBoard(mov1[0]+vert, mov1[1]-1) {
-			if board[mov1[0]+vert ][mov1[1]-1] == enemy || board[mov1[0]+vert ][mov1[1]-1] == enemy+6 {
+			if board[mov1[0]+vert][mov1[1]-1] == enemy || board[mov1[0]+vert][mov1[1]-1] == enemy+6 {
 				return true
 			}
 		}
@@ -166,7 +166,7 @@ func PlayerTurn(player int, capOnly bool, lastPos [2]int) {
 	text = string([]rune(strings.ToLower(text))[0:5])
 
 	match, _ := regexp.MatchString(`^[a-h][1-8] [a-h][1-8].*`, text)
-	if ! match {
+	if !match {
 		fmt.Printf("Bad input, expected [a-h][1-8] [a-h][1-8], got %s\n", text)
 		PlayerTurn(player, capOnly, lastPos)
 		return
@@ -206,7 +206,7 @@ func PlayerTurn(player int, capOnly bool, lastPos [2]int) {
 			l := (mov1[0] + mov2[0]) / 2
 			h := (mov1[1] + mov2[1]) / 2
 			board[l][h] = 3
-			if ! EnemyOnBoard(player) {
+			if !EnemyOnBoard(player) {
 				playing = false
 				PrintBoard()
 				fmt.Printf("\nCongraulations Player %d, you've won!\n", player)
@@ -245,7 +245,7 @@ func main() {
 	playing = true
 	for playing {
 		PlayerTurn(1, false, [2]int{0, 0})
-		if ! playing {
+		if !playing {
 			break
 		}
 		PlayerTurn(2, false, [2]int{0, 0})
