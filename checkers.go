@@ -71,11 +71,11 @@ func CaptureChecks(player int, mov1 [2]int, mov2 [2]int, capOnly bool, enemy int
 
 	if mov2[0]-mov1[0] == vertCap {
 		if hoz == -2 && OnBoard(mov1[0]+vert, mov1[1]+1) {
-			if board[mov1[0]+vert ][mov1[1]+1] == enemy {
+			if board[mov1[0]+vert ][mov1[1]+1] == enemy || board[mov1[0]+vert ][mov1[1]+1] == enemy + 6 {
 				return true
 			}
 		} else if hoz == 2 && OnBoard(mov1[0]+vert, mov1[1]-1) {
-			if board[mov1[0]+vert ][mov1[1]-1] == enemy {
+			if board[mov1[0]+vert ][mov1[1]-1] == enemy || board[mov1[0]+vert ][mov1[1]-1] == enemy + 6{
 				return true
 			}
 		}
@@ -109,9 +109,9 @@ func PlayerTurn(player int, capOnly bool, lastPos [2]int) {
 		return
 	}
 
-	text = string([]rune(text)[0:5])
+	text = string([]rune(strings.ToLower(text))[0:5])
 
-	match, _ := regexp.MatchString("[a-h][1-8] [a-h][1-8]", text)
+	match, _ := regexp.MatchString(`^[a-h][1-8] [a-h][1-8].*`, text)
 	if ! match {
 		fmt.Printf("Bad input, expected [a-h][1-8] [a-h][1-8], got %s\n", text)
 		PlayerTurn(player, capOnly, lastPos)
@@ -172,8 +172,9 @@ func PlayerTurn(player int, capOnly bool, lastPos [2]int) {
 		}
 
 	} else {
-		fmt.Println("INVALUD MOVE!")
+		fmt.Println("INVALID MOVE!")
 		PlayerTurn(player, capOnly, lastPos)
+		return
 	}
 
 }

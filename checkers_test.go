@@ -5,6 +5,39 @@ import (
 	"strings"
 )
 
+func PopulateTestBoard(){
+	board = [8][8]int{
+		{0,2,0,3,0,3,0,2},
+		{2,0,1,0,2,0,2,0},
+		{0,2,0,1,0,2,0,2},
+		{3,0,3,0,3,0,7,0},
+		{0,8,0,8,0,8,0,3},
+		{1,0,7,0,1,0,7,0},
+		{0,1,0,3,0,1,0,3},
+		{1,0,1,0,1,0,1,0}}
+}
+
+func TestValidMoves(t *testing.T){
+	PopulateTestBoard()
+	if ! ValidMove(1, [2]int{2, 3}, [2]int{0, 5}, false , false){
+		t.Error("Regular 1 can't capture Regular 2")
+	} else if ! ValidMove(2, [2]int{1, 4}, [2]int{3, 2}, false , false){
+		t.Error("Regular 2 can't capture Regular 1")
+	} else if ! ValidMove(1, [2]int{5, 0}, [2]int{3, 2}, false , false){
+		t.Error("Regular 1 can't capture king 2")
+	} else if ! ValidMove(1, [2]int{5, 2}, [2]int{3, 0}, false , false){
+		t.Error("King 1 can't capture king 2")
+	} else if ! ValidMove(2, [2]int{4, 5}, [2]int{6, 7}, false , false){
+		t.Error("King 2 can't capture king 1")
+	} else if ! ValidMove(2, [2]int{2, 5}, [2]int{4, 7}, false , false){
+		t.Error("Regular 2 can't capture king 1")
+	}
+
+}
+
+// Board Tests
+
+
 func TestBoardAsString(t *testing.T){
 	PopulateNewBoard()
 	boardString := BoardAsString()
@@ -56,31 +89,31 @@ func TestPosToBoard(t *testing.T) {
 
 func TestEnemyOnBoard(t *testing.T) {
 	PopulateNewBoard()
-	if ! EnemyOnBoard(1){
+	if ! EnemyOnBoard(1) {
 		t.Error("There should be other players on the board")
 	}
 	board = [8][8]int{
-		{0,8,0,8,0,8,0,8},
-		{8,0,8,0,8,0,8,0},
-		{0,8,0,8,0,8,0,8},
-		{3,0,3,0,3,0,3,0},
-		{0,3,0,3,0,3,0,3},
-		{1,0,1,0,1,0,1,0},
-		{0,1,0,1,0,1,0,1},
-		{1,0,1,0,1,0,1,0}}
-	if ! EnemyOnBoard(1){
+		{0, 8, 0, 8, 0, 8, 0, 8},
+		{8, 0, 8, 0, 8, 0, 8, 0},
+		{0, 8, 0, 8, 0, 8, 0, 8},
+		{3, 0, 3, 0, 3, 0, 3, 0},
+		{0, 3, 0, 3, 0, 3, 0, 3},
+		{1, 0, 1, 0, 1, 0, 1, 0},
+		{0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 1, 0, 1, 0, 1, 0}}
+	if ! EnemyOnBoard(1) {
 		t.Error("There should be other player's kings on the board")
 	}
 	board = [8][8]int{
-		{0,3,0,3,0,3,0,3},
-		{3,0,3,0,3,0,3,0},
-		{0,3,0,3,0,3,0,3},
-		{3,0,3,0,3,0,3,0},
-		{0,3,0,3,0,3,0,3},
-		{1,0,1,0,1,0,1,0},
-		{0,1,0,1,0,1,0,1},
-		{1,0,1,0,1,0,1,0}}
-	if EnemyOnBoard(1){
+		{0, 3, 0, 3, 0, 3, 0, 3},
+		{3, 0, 3, 0, 3, 0, 3, 0},
+		{0, 3, 0, 3, 0, 3, 0, 3},
+		{3, 0, 3, 0, 3, 0, 3, 0},
+		{0, 3, 0, 3, 0, 3, 0, 3},
+		{1, 0, 1, 0, 1, 0, 1, 0},
+		{0, 1, 0, 1, 0, 1, 0, 1},
+		{1, 0, 1, 0, 1, 0, 1, 0}}
+	if EnemyOnBoard(1) {
 		t.Error("Your enemy should be dead!")
 	}
 }
