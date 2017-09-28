@@ -124,6 +124,19 @@ func ValidMoves(player int) [][2][2]int {
 	return valids
 }
 
+// For later, when AI or UI is added, fast way to find valid moves for a single piece
+func ValidMovesForPiece(player int, piece [2]int)  [][2]int {
+	var valids [][2]int
+
+	for _, move := range ValidMoves(player) {
+		if move[0] == piece {
+			valids = append(valids, move[1])
+		}
+	}
+	return valids
+}
+
+
 func PlayerTurn(player int, capOnly bool, lastPos [2]int) {
 	PrintBoard()
 	if len(ValidMoves(player)) == 0 {
