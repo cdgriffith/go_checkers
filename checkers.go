@@ -254,7 +254,7 @@ func main() {
 	playerOneStuck = false
 	playerTwoStuck = false
 	fmt.Println("Welcome to GO Checkers!\n")
-	fmt.Println("You play by specifiying which peice to move, and the posistion to move it too")
+	fmt.Println("You play by specifying which piece to move, and the position to move it too")
 	fmt.Println("You can string captures, the game will let you know if you must take the next capture")
 	fmt.Println("You can also 'quit' at anytime")
 	fmt.Println("\nHave fun!\n")
