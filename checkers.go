@@ -268,4 +268,10 @@ func main() {
 		PlayerTurn(2, false, [2]int{0, 0})
 	}
 
+	fmt.Println("\nWould you like to play again? (y/n)")
+	reader := bufio.NewReader(os.Stdin)
+	text, _ := reader.ReadString('\n')
+	if strings.HasPrefix(strings.ToLower(text), "y") {
+		main()
+	}
 }
